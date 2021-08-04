@@ -5,13 +5,19 @@ package com.revature.p0.pages;
  */
 public abstract class Page {
 
-    protected String pageID;
+    protected static String pageID;
 
-    public Page(String pageID) {
-        this.pageID = pageID;
-    }
+    public Page() {}
 
     public String getPageID() { return pageID; }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Page page = (Page) o;
+        return pageID.equals(page.getPageID());
+    }
 
     /**
      * Provide page contents and functionality.
