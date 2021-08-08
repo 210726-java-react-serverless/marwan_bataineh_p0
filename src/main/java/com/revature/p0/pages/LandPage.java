@@ -1,6 +1,12 @@
 package com.revature.p0.pages;
 
 import com.revature.p0.models.PageIDList;
+import com.revature.p0.util.AppState;
+import com.revature.p0.util.ConsoleReaderUtil;
+import com.revature.p0.util.PageNavUtil;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  * The LandPage class provides the first, or "landing", page for the program which provides basic options such as "login",
@@ -10,7 +16,7 @@ public class LandPage extends Page{
 
     private static LandPage landPageInstance = null;
 
-    private LandPage() { pageID = PageIDList.landPageID; }
+    private LandPage() { super(PageIDList.landPageID); }
 
     public static LandPage getInstance() {
         if(landPageInstance == null) {
@@ -21,9 +27,54 @@ public class LandPage extends Page{
 
     @Override
     public void loadPage() {
+        ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
+        BufferedReader consoleReader = consoleReaderUtil.getConsoleReader();
+        PageNavUtil pageNavUtil = PageNavUtil.getInstance();
 
+        System.out.println("Welcome! Please select an option below.");
+        System.out.println("1) login");
+        System.out.println("2) register");
+        System.out.println("3) exit");
 
+        System.out.print(" > ");
 
+        String input = null;
+        try {
+            input = consoleReader.readLine();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        if(input == null) {
+            System.out.println("Input not found.");
+            return;
+        } else if(input.equals("")) {
+            System.out.println("Empty input field.");
+            return;
+        }
+
+        int selection;
+
+        try {
+            selection = Integer.parseInt(input);
+            switch(selection) {
+                case 1:
+                    pageNavUtil.mountPage(PageIDList.loginPageID);
+                    break;
+                case 2:
+                    pageNavUtil.mountPage(PageIDList.registerPageID);
+                    break;
+                case 3:
+                    AppState.sendExitSignal();
+                    break;
+                default:
+                    System.out.println("\nInput not a valid option!\n");
+                    return; // Reload page
+            }
+        } catch(NumberFormatException e) {
+            System.out.println("\nInput not recognised!\n");
+            return; // Reload page
+        }
     }
 
 }

@@ -4,17 +4,16 @@ import com.revature.p0.pages.LandPage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
- * The AppState class provides a Singleton instance utility that controls the application state.
+ * The AppState class provides an instance utility that controls the application state.
  */
 public class AppState {
 
-    private static AppState appStateInstance = null; // Stores the single instance (singleton) of AppState
-    private boolean appRunning;
+    private static boolean appRunning;
     private final String landPageID; // Landing page on launch... Always loaded in application
-    private final PageDriver pageDriver;
+    private final PageNavUtil pageNavUtil;
+    private final ConsoleReaderUtil consoleReaderUtil;
     private final BufferedReader consoleReader;
 
     /**
@@ -22,9 +21,10 @@ public class AppState {
      * pageDriver (PageDriver): facilitates page loading/switching
      * consoleReader (BufferedReader <<< System.in): provides ability to process user input
      */
-    private AppState() {
-        pageDriver = new PageDriver();
-        consoleReader = new BufferedReader(new InputStreamReader(System.in));
+    public AppState() {
+        pageNavUtil = PageNavUtil.getInstance();
+        consoleReaderUtil = ConsoleReaderUtil.getInstance();
+        consoleReader = consoleReaderUtil.getConsoleReader();
         landPageID = LandPage.getInstance().getPageID();
     }
 
@@ -33,7 +33,23 @@ public class AppState {
      */
     public void startup() {
         appRunning = true;
-        pageDriver.launchPage(landPageID);
+        pageNavUtil.mountPage(landPageID);
+
+        /* Application Lifecycle lives here... */
+        while(appRunning) {
+            pageNavUtil.loadPage();
+        }
+
+        /* Close/Cleanup Application */
+        stop();
+    }
+
+    /**
+     * The sendExitSignal method provides a static signaling method for the application, so that operations elsewhere
+     * can signal to finish up the lifecycle of the application and close out.
+     */
+    public static void sendExitSignal() {
+        appRunning = false;
     }
 
     /**
@@ -46,17 +62,4 @@ public class AppState {
             e.printStackTrace();
         }
     }
-
-    /**
-     * The getInstance method provides the singleton instance of the AppState class either by creating a new instance
-     * if one does not already exist, or by providing the existing instance of the AppState class.
-     * @return - The singleton instance of the AppState class.
-     */
-    public static AppState getInstance() {
-        if(appStateInstance == null) {
-            appStateInstance = new AppState();
-        }
-        return appStateInstance;
-    }
-
 }

@@ -5,9 +5,9 @@ package com.revature.p0.pages;
  */
 public abstract class Page {
 
-    protected static String pageID;
+    protected String pageID;
 
-    public Page() {}
+    public Page(String pageID) { this.pageID = pageID; }
 
     public String getPageID() { return pageID; }
 

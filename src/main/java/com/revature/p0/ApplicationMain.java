@@ -8,8 +8,8 @@ import com.revature.p0.util.AppState;
 public class ApplicationMain {
 
     public static void main(String[] args) {
-        AppState appState = AppState.getInstance();
-
+        AppState appState = new AppState();
+        appState.startup();
     }
 
 }

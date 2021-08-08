@@ -4,44 +4,52 @@ import com.revature.p0.models.PageIDList;
 import com.revature.p0.pages.LandPage;
 import com.revature.p0.pages.LoginPage;
 import com.revature.p0.pages.Page;
+import com.revature.p0.pages.RegisterPage;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
- * The PageDriver class provides methods for storing and transitioning between Pages.
+ * The PageNavUtil class provides methods for storing and transitioning between Pages.
  */
-public class PageDriver {
+public class PageNavUtil {
 
+    private static PageNavUtil pageNavUtil = null;
     private final int historyDequeCapacity = 10;
     private ArrayDeque<Page> pageHistoryDeque; // Hold page navigation history
-    private HashSet<Page> pageBufferedSet; // Store previously loaded pages here; do not load duplicates
+    private ArrayList<String> pageIDList;
+    private Page nextPage;
 
-    public PageDriver() {
+    private PageNavUtil() {
         pageHistoryDeque = new ArrayDeque<Page>(historyDequeCapacity);
-        pageBufferedSet = new HashSet<Page>();
+        pageIDList = PageIDList.pageIDList();
     }
 
-    public void launchPage(String pageID) {
+    public static PageNavUtil getInstance() {
+        if(pageNavUtil == null) { pageNavUtil = new PageNavUtil(); }
+        return pageNavUtil;
+    }
 
+    public void mountPage(String pageID) {
         switch(pageID) {
             case PageIDList.landPageID:
-                storePageInstanceIntoBuffer(LandPage.getInstance());
+                nextPage = LandPage.getInstance();
                 break;
             case PageIDList.loginPageID:
-                storePageInstanceIntoBuffer(LoginPage.getInstance());
+                nextPage = LoginPage.getInstance();
                 break;
             case PageIDList.registerPageID:
+                nextPage = RegisterPage.getInstance();
                 break;
             default:
-                System.out.println("Selection not recognized");
-                return;
+                System.out.println("Page not found.");
         }
-
     }
 
-    private void storePageInstanceIntoBuffer(Page page) {
-
+    public void loadPage() {
+        pushPageOntoHistoryDeque(nextPage);
+        nextPage.loadPage();
     }
 
     /**

@@ -5,9 +5,9 @@ import java.util.Objects;
 /**
  * The User class is a pojo which provides the template for various user objects.
  */
-public abstract class User {
+public class User {
 
-    private int id = 0;
+    private int id;
     private String firstName;
     private String lastName;
     private String email;
@@ -30,7 +30,7 @@ public abstract class User {
      * This method generates the JSON format for user input into the mongoDB.
      * @return - JSON object containing user entry fields and values.
      */
-    public abstract String toJSON();
+    public String toJSON() { return ""; }
 
     public int getId() { return id; }
 
