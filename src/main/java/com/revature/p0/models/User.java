@@ -1,10 +1,13 @@
 package com.revature.p0.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Objects;
 
 /**
  * The User class is a pojo which provides the template for various user objects.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
     private String id;
@@ -14,6 +17,8 @@ public class User {
     private String email;
     private String username;
     private String password;
+
+    public User() { super(); }
 
     public User(String firstName, String lastName,
                 String email,

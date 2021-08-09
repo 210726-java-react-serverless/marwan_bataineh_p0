@@ -42,7 +42,7 @@ public class RegisterPage extends Page{
             case 1:
                 break;
             case 2:
-                pageNavUtil.mountPage(PageIDList.landPageID);
+                pageNavUtil.goBack();
                 return;
             case 3:
                 AppState.sendExitSignal();

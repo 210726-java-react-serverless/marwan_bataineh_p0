@@ -60,7 +60,30 @@ public class MongodUserDAO implements CRUD<User>{
 
     @Override
     public User readByUsername(String username) {
-        return null;
+        try {
+            MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
+            MongoDatabase p0Database = mongoClient.getDatabase("p0");
+            MongoCollection<Document> usersCollection = p0Database.getCollection("users");
+            Document queryDoc = new Document("username", username);
+            Document authUserDoc = usersCollection.find(queryDoc).first();
+
+            if (authUserDoc == null) {
+                return null;
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            User authUser = mapper.readValue(authUserDoc.toJson(), User.class);
+            authUser.setId(authUserDoc.get("_id").toString());
+
+            return authUser;
+
+        } catch (JsonMappingException e) {
+            e.printStackTrace(); // TODO log this to a file
+            throw new DataSourceException("An exception occurred while mapping the document.", e);
+        } catch (Exception e) {
+            e.printStackTrace(); // TODO log this to a file
+            throw new DataSourceException("An unexpected exception occurred.", e);
+        }
     }
 
     @Override
@@ -101,7 +124,7 @@ public class MongodUserDAO implements CRUD<User>{
             MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
             MongoDatabase p0Database = mongoClient.getDatabase("p0");
             MongoCollection<Document> usersCollection = p0Database.getCollection("users");
-            Document queryDoc = new Document("username", email);
+            Document queryDoc = new Document("email", email);
             Document authUserDoc = usersCollection.find(queryDoc).first();
 
             if (authUserDoc == null) {

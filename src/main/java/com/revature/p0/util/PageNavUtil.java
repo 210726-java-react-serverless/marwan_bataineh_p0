@@ -31,6 +31,7 @@ public class PageNavUtil {
     }
 
     public void mountPage(String pageID) {
+        Page prevPage = nextPage;
         switch(pageID) {
             case PageIDList.landPageID:
                 nextPage = LandPage.getInstance();
@@ -44,10 +45,10 @@ public class PageNavUtil {
             default:
                 System.out.println("Page not found.");
         }
+        if(prevPage != nextPage && prevPage != null) pushPageOntoHistoryDeque(prevPage);
     }
 
     public void loadPage() {
-        pushPageOntoHistoryDeque(nextPage);
         nextPage.loadPage();
     }
 

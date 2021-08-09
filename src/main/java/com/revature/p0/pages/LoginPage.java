@@ -2,8 +2,10 @@ package com.revature.p0.pages;
 
 import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.PageIDList;
+import com.revature.p0.models.User;
 import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
+import com.revature.p0.util.PageNavUtil;
 import com.revature.p0.util.service.UserService;
 
 import java.io.BufferedReader;
@@ -28,7 +30,30 @@ public class LoginPage extends Page{
     @Override
     public void loadPage() {
         UserService userService = new UserService();
+        PageNavUtil pageNavUtil = PageNavUtil.getInstance();
         ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
+
+        System.out.print("\nWould you like to login?" +
+                "\n1) login" +
+                "\n2) back" +
+                "\n3) exit" +
+                "\n > ");
+
+        int selection = consoleReaderUtil.getIntOption();
+
+        switch(selection) {
+            case 1:
+                break;
+            case 2:
+                pageNavUtil.goBack();
+                return;
+            case 3:
+                AppState.sendExitSignal();
+                return;
+            default:
+                System.out.println("Selection not valid!");
+                return;
+        }
 
         System.out.print("Enter Username: ");
         String username = consoleReaderUtil.getLine();
@@ -38,7 +63,14 @@ public class LoginPage extends Page{
         System.out.println("Username: " + username +
                 "\nPassword: " + password);
 
-        userService.login(username, password);
+        User loggedInUser = userService.login(username, password);
+
+        if(loggedInUser == null) {
+            System.out.println("\nInvalid username and/or password!");
+            return;
+        };
+
+        System.out.println("Successful login! " + loggedInUser);
 
         AppState.sendExitSignal();
 

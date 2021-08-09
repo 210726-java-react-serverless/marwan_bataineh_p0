@@ -26,13 +26,15 @@ public class UserService {
     public User login(String username, String password) {
 
         if(username == null || username.trim().equals("") || password == null || password.trim().equals("")) {
-            throw new InvalidRequestException("Invalid user credentials provided!");
+            //throw new InvalidRequestException("Invalid user credentials provided!");
+            return null;
         }
 
         User authUser = dao.readByUsernamePassword(username, password);
 
         if(authUser == null) {
-            throw new AuthenticationException("Invalid credentials provided!");
+            //throw new AuthenticationException("Invalid credentials provided!");
+            return null;
         }
 
         return authUser; // TODO we need to store this value within app memory to use elsewhere
