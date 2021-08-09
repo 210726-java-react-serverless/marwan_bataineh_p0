@@ -12,9 +12,6 @@ import com.revature.p0.util.PasswordUtils;
 import com.revature.p0.util.exceptions.DataSourceException;
 import org.bson.Document;
 
-import java.io.FileOutputStream;
-import java.util.Properties;
-
 /**
  * The MongodUserDAO provides the database connectivity layer for the application. Facilitates CRUD operations on the
  * users collection.
@@ -54,11 +51,14 @@ public class MongodUserDAO implements CRUD<User>{
     }
 
     @Override
+    public User read(int id) {
+        return null;
+    }
+
     public User readByID(int id) {
         return null;
     }
 
-    @Override
     public User readByUsername(String username) {
         try {
             MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
@@ -86,7 +86,6 @@ public class MongodUserDAO implements CRUD<User>{
         }
     }
 
-    @Override
     public User readByUsernamePassword(String username, String password) {
         try {
             MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
@@ -118,7 +117,6 @@ public class MongodUserDAO implements CRUD<User>{
         }
     }
 
-    @Override
     public User readByEmail(String email) {
         try {
             MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
