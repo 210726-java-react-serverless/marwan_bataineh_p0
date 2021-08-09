@@ -2,17 +2,19 @@ package com.revature.p0.models;
 
 import java.util.Objects;
 
-public class Class {
-    private String classId;
-    private String className;
+public class Course {
+    private String courseId;
+    private String courseName;
+    private int section;
     private String field;
     private int level;
     private int space;
     private int capacity;
 
-    public Class(String classId, String className, String field, int level, int space, int capacity) {
-        this.classId = classId;
-        this.className = className;
+    public Course(String courseID, String courseName, int section, String field, int level, int space, int capacity) {
+        this.courseId = courseID;
+        this.courseName = courseName;
+        this.section = section;
         this.field = field;
         this.level = level;
         this.space = space;
@@ -22,8 +24,9 @@ public class Class {
     @Override
     public String toString() {
         return "Class{" +
-                "classId='" + classId + '\'' +
-                ", className='" + className + '\'' +
+                "courseId='" + courseId + '\'' +
+                ", courseName='" + courseName + '\'' +
+                ", section=" + section + '\'' +
                 ", field='" + field + '\'' +
                 ", level=" + level +
                 ", space=" + space +
@@ -35,29 +38,29 @@ public class Class {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Class aClass = (Class) o;
-        return level == aClass.level && space == aClass.space && capacity == aClass.capacity && Objects.equals(classId, aClass.classId) && Objects.equals(className, aClass.className) && Objects.equals(field, aClass.field);
+        Course aClass = (Course) o;
+        return level == aClass.level && space == aClass.space && capacity == aClass.capacity && Objects.equals(courseId, aClass.courseId) && Objects.equals(courseName, aClass.courseName) && Objects.equals(field, aClass.field);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(classId, className, field, level, space, capacity);
+        return Objects.hash(courseId, courseName, field, level, space, capacity);
     }
 
-    public String getClassId() {
-        return classId;
+    public String getCourseId() {
+        return courseId;
     }
 
-    public void setClassId(String classId) {
-        this.classId = classId;
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
     }
 
-    public String getClassName() {
-        return className;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
     public String getField() {

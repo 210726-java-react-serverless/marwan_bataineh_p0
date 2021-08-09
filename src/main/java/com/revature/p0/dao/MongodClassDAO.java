@@ -1,21 +1,21 @@
 package com.revature.p0.dao;
 
-import com.revature.p0.models.Class;
+import com.revature.p0.models.Course;
 
-public class MongodClassDAO implements CRUD<Class>{
+public class MongodClassDAO implements CRUD<Course>{
 
     @Override
-    public Class create(Class newClass) {
+    public Course create(Course newClass) {
         return null;
     }
 
     @Override
-    public Class read(int id) {
+    public Course read(int id) {
         return null;
     }
 
     @Override
-    public boolean update(Class updatedClass) {
+    public boolean update(Course updatedClass) {
         return false;
     }
 
