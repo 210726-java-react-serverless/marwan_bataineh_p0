@@ -1,8 +1,10 @@
 package com.revature.p0.pages;
 
+import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.PageIDList;
 import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
+import com.revature.p0.util.service.UserService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,20 +27,18 @@ public class LoginPage extends Page{
 
     @Override
     public void loadPage() {
+        UserService userService = new UserService();
         ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
-        BufferedReader consoleReader = consoleReaderUtil.getConsoleReader();
 
-        try {
-            System.out.print("Enter Username: ");
-            String username = consoleReader.readLine();
-            System.out.print("Enter password: ");
-            String password = consoleReader.readLine();
+        System.out.print("Enter Username: ");
+        String username = consoleReaderUtil.getLine();
+        System.out.print("Enter password: ");
+        String password = consoleReaderUtil.getLine();
 
-            System.out.println("Username: " + username +
-                    "\nPassword: " + password);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Username: " + username +
+                "\nPassword: " + password);
+
+        userService.login(username, password);
 
         AppState.sendExitSignal();
 

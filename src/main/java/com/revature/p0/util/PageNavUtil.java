@@ -8,7 +8,6 @@ import com.revature.p0.pages.RegisterPage;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * The PageNavUtil class provides methods for storing and transitioning between Pages.
@@ -50,6 +49,10 @@ public class PageNavUtil {
     public void loadPage() {
         pushPageOntoHistoryDeque(nextPage);
         nextPage.loadPage();
+    }
+
+    public void goBack() {
+        mountPage(pageHistoryDeque.pop().getPageID());
     }
 
     /**

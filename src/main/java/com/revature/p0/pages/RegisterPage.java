@@ -28,13 +28,13 @@ public class RegisterPage extends Page{
     public void loadPage() {
         ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
         PageNavUtil pageNavUtil = PageNavUtil.getInstance();
-        MongodUserDAO dao = new MongodUserDAO();
-        UserService userService = new UserService(dao);
+        UserService userService = new UserService();
 
-        System.out.println("\nWould you like to register a new user?" +
+        System.out.print("\nWould you like to register a new user?" +
                 "\n1) register" +
                 "\n2) back" +
-                "\n3) exit");
+                "\n3) exit" +
+                "\n > ");
 
         int selection = consoleReaderUtil.getIntOption();
 
@@ -55,6 +55,7 @@ public class RegisterPage extends Page{
         /* Get registration information from user TODO: implement business logic */
         String firstName, lastName, email, username, password;
 
+        // TODO: I want these to check for validity on each input field, and to loop them if needed (w/ options to continue or not)
         System.out.println("Fill out your information below.");
         System.out.print("First name: ");
         firstName = consoleReaderUtil.getLine();

@@ -2,6 +2,7 @@ package com.revature.p0.util.service;
 
 import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.User;
+import com.revature.p0.util.MongoClientFactory;
 import com.revature.p0.util.exceptions.AuthenticationException;
 import com.revature.p0.util.exceptions.InvalidRequestException;
 import com.revature.p0.util.exceptions.ResourcePersistenceException;
@@ -13,7 +14,7 @@ public class UserService {
 
     private final MongodUserDAO dao;
 
-    public UserService(MongodUserDAO dao) { this.dao = dao; }
+    public UserService() { this.dao = new MongodUserDAO(); }
 
     /**
      * The login method passes a username and password (supplied by the user) to the data access object. If the login
