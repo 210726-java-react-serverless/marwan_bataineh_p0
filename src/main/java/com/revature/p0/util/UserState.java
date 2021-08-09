@@ -1,4 +1,6 @@
-package com.revature.p0.models;
+package com.revature.p0.util;
+
+import com.revature.p0.models.User;
 
 /**
  * The UserState class provides a singleton instance of the logged-in user.

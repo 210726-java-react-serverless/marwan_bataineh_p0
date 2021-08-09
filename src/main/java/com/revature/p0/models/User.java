@@ -20,10 +20,11 @@ public class User {
 
     public User() { super(); }
 
-    public User(String firstName, String lastName,
+    public User(int permissions, String firstName, String lastName,
                 String email,
                 String username, String password) {
 
+        this.permissions = permissions;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

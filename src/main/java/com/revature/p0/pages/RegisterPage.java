@@ -1,6 +1,5 @@
 package com.revature.p0.pages;
 
-import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.PageIDList;
 import com.revature.p0.models.User;
 import com.revature.p0.util.AppState;
@@ -54,27 +53,81 @@ public class RegisterPage extends Page{
 
         /* Get registration information from user TODO: implement business logic */
         String firstName, lastName, email, username, password;
+        int permissions = 0;
 
         // TODO: I want these to check for validity on each input field, and to loop them if needed (w/ options to continue or not)
         System.out.println("Fill out your information below.");
-        System.out.print("First name: ");
-        firstName = consoleReaderUtil.getLine();
+        System.out.print("Are you a faculty member?\n" +
+                "1) yes\n" +
+                "2) no\n" +
+                "> ");
+        int isFaculty = consoleReaderUtil.getIntOption();
+        switch(isFaculty) {
+            case 1:
+                permissions = 1;
+                break;
+            case 2:
+                break;
+            default:
+                System.out.println("\nInvalid option!");
+                return;
+        }
+
+        do {
+            System.out.print("First name: ");
+            firstName = consoleReaderUtil.getLine();
+            if (!userService.isNameValid(firstName)) {
+                System.out.println("\nThat is not a valid name.");
+                System.out.print("Try again?\n" +
+                        "1) re-enter\n" +
+                        "2) go back\n" +
+                        "> ");
+                int choice = consoleReaderUtil.getIntOption();
+                switch(choice) {
+                    case 1:
+                        break;
+                    case 2:
+                        pageNavUtil.goBack();
+                        return;
+                    default:
+                        System.out.println("\nInvalid option!");
+                        break;
+                }
+            }
+        } while(!userService.isNameValid(firstName));
 
         System.out.print("Last name: ");
         lastName = consoleReaderUtil.getLine();
+        if(!userService.isNameValid(lastName)) {
+            System.out.println("\nThat is not a valid name.");
+            return;
+        }
 
         System.out.print("Email: ");
         email = consoleReaderUtil.getLine();
+        if(!userService.isEmailValid(email)) {
+            System.out.println("\nThat is not a valid email.");
+            return;
+        }
 
         System.out.print("Username: ");
         username = consoleReaderUtil.getLine();
+        if(!userService.isUsernameValid(username)) {
+            System.out.println("\nThat is not a valid username.");
+            return;
+        }
 
         System.out.print("Password: ");
         password = consoleReaderUtil.getLine();
+        if(!userService.isPasswordValid(password)) {
+            System.out.println("\nThat is not a valid password.");
+            return;
+        }
 
-        User newUser = new User(firstName, lastName, email, username, password);
-        System.out.println(newUser.toString() + "\n");
-        userService.register(newUser);
+        User newUser = new User(permissions, firstName, lastName, email, username, password);
+        if(userService.register(newUser) == null) return;
+
+        System.out.println("\nRegistration Successful!");
 
         pageNavUtil.mountPage(PageIDList.landPageID);
 

@@ -51,13 +51,18 @@ public class UserService {
 
         if(!isUserValid(newUser)) {
             //throw new InvalidRequestException("Invalid user data provided!");
+            System.out.println("\nUsername is invalid!");
             return null;
         }
         if(dao.readByUsername(newUser.getUsername()) != null) {
-            throw new ResourcePersistenceException("Provided username is already taken!");
+            //throw new ResourcePersistenceException("Provided username is already taken!");
+            System.out.println("\nUsername taken!");
+            return null;
         }
         if(dao.readByEmail(newUser.getEmail()) != null) {
-            throw new ResourcePersistenceException("Provided email is already taken!");
+            //throw new ResourcePersistenceException("Provided email is already taken!");
+            System.out.println("\nEmail taken!");
+            return null;
         }
 
         return dao.create(newUser);
@@ -134,7 +139,8 @@ public class UserService {
         Matcher matcher = illegalCharacters.matcher(username);
         return !username.trim().equals("") &&
                 !username.matches("\\s+") &&
-                !matcher.find();
+                !matcher.find() &&
+                username.length() >= 3;
 
     }
 
@@ -142,7 +148,7 @@ public class UserService {
      * Under construction.
      * @return
      */
-    public boolean isPasswordValid() {
+    public boolean isPasswordValid(String password) {
         return true;
     }
 

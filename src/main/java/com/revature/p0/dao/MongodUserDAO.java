@@ -31,7 +31,8 @@ public class MongodUserDAO implements CRUD<User>{
 
             MongoDatabase bookstoreDb = mongoClient.getDatabase("p0");
             MongoCollection<Document> usersCollection = bookstoreDb.getCollection("users");
-            Document newUserDoc = new Document("firstName", newUser.getFirstName())
+            Document newUserDoc = new Document("permissions", newUser.getPermissions())
+                    .append("firstName", newUser.getFirstName())
                     .append("lastName", newUser.getLastName())
                     .append("email", newUser.getEmail())
                     .append("username", newUser.getUsername())

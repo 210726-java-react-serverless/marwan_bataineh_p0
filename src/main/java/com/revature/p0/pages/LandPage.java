@@ -31,7 +31,7 @@ public class LandPage extends Page{
         BufferedReader consoleReader = consoleReaderUtil.getConsoleReader();
         PageNavUtil pageNavUtil = PageNavUtil.getInstance();
 
-        System.out.println("Welcome! Please select an option below.");
+        System.out.println("\nWelcome! Please select an option below.");
         System.out.println("1) login");
         System.out.println("2) register");
         System.out.println("3) exit");
