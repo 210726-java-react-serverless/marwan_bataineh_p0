@@ -7,7 +7,8 @@ import java.util.Objects;
  */
 public class User {
 
-    private int id;
+    private String id;
+    private int permissions;
     private String firstName;
     private String lastName;
     private String email;
@@ -32,9 +33,13 @@ public class User {
      */
     public String toJSON() { return ""; }
 
-    public int getId() { return id; }
+    public String getId() { return id; }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(String id) { this.id = id; }
+
+    public int getPermissions() { return permissions; }
+
+    public void setPermissions(int permissions) { this.permissions = permissions; }
 
     public String getFirstName() { return firstName; }
 

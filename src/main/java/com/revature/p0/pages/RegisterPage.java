@@ -1,12 +1,12 @@
 package com.revature.p0.pages;
 
+import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.PageIDList;
 import com.revature.p0.models.User;
+import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
-
-import java.io.BufferedReader;
-import java.io.IOException;
+import com.revature.p0.util.service.UserService;
 
 /**
  * The RegisterPage class provides a service to register a new user to the database.
@@ -27,9 +27,30 @@ public class RegisterPage extends Page{
     @Override
     public void loadPage() {
         ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
-        BufferedReader consoleReader = consoleReaderUtil.getConsoleReader();
         PageNavUtil pageNavUtil = PageNavUtil.getInstance();
+        MongodUserDAO dao = new MongodUserDAO();
+        UserService userService = new UserService(dao);
 
+        System.out.println("\nWould you like to register a new user?" +
+                "\n1) register" +
+                "\n2) back" +
+                "\n3) exit");
+
+        int selection = consoleReaderUtil.getIntOption();
+
+        switch(selection) {
+            case 1:
+                break;
+            case 2:
+                pageNavUtil.mountPage(PageIDList.landPageID);
+                return;
+            case 3:
+                AppState.sendExitSignal();
+                return;
+            default:
+                System.out.println("Selection not valid!");
+                return;
+        }
 
         /* Get registration information from user TODO: implement business logic */
         String firstName, lastName, email, username, password;
@@ -52,6 +73,7 @@ public class RegisterPage extends Page{
 
         User newUser = new User(firstName, lastName, email, username, password);
         System.out.println(newUser.toString() + "\n");
+        userService.register(newUser);
 
         pageNavUtil.mountPage(PageIDList.landPageID);
 

@@ -31,9 +31,22 @@ public class ConsoleReaderUtil {
         try {
             return consoleReader.readLine();
         } catch(IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //TODO handle and log this
         }
         return null;
+    }
+
+    /**
+     * The getIntOption method provides an integer input handler that abstracts the exception handling.
+     * @return
+     */
+    public int getIntOption() {
+        try {
+            return Integer.parseInt(consoleReader.readLine());
+        } catch(IOException e) {
+            e.printStackTrace(); //TODO handle and log this
+        }
+        return -1;
     }
 
     public void processInput() {

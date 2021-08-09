@@ -15,6 +15,7 @@ public class AppState {
     private final PageNavUtil pageNavUtil;
     private final ConsoleReaderUtil consoleReaderUtil;
     private final BufferedReader consoleReader;
+    private final MongoClientFactory mongoClientFactory;
 
     /**
      * The Default Constructor for the AppState class instantiates utilities available to the rest of the application.
@@ -26,6 +27,7 @@ public class AppState {
         consoleReaderUtil = ConsoleReaderUtil.getInstance();
         consoleReader = consoleReaderUtil.getConsoleReader();
         landPageID = LandPage.getInstance().getPageID();
+        mongoClientFactory = MongoClientFactory.getInstance();
     }
 
     /**
@@ -58,6 +60,7 @@ public class AppState {
     public void stop() {
         try {
             consoleReader.close();
+            mongoClientFactory.cleanUp();
         } catch(IOException e) {
             e.printStackTrace();
         }
