@@ -31,7 +31,7 @@ public class ConsoleReaderUtil {
         try {
             return consoleReader.readLine();
         } catch(IOException e) {
-            e.printStackTrace(); //TODO handle and log this
+            //e.printStackTrace(); //TODO handle and log this
         }
         return null;
     }
@@ -43,10 +43,10 @@ public class ConsoleReaderUtil {
     public int getIntOption() {
         try {
             return Integer.parseInt(consoleReader.readLine());
-        } catch(IOException e) {
-            e.printStackTrace(); //TODO handle and log this
+        } catch(Exception e) {
+            //e.printStackTrace(); //TODO handle and log this
+            return -1;
         }
-        return -1;
     }
 
     public void processInput() {

@@ -33,11 +33,11 @@ public class LoginPage extends Page{
         PageNavUtil pageNavUtil = PageNavUtil.getInstance();
         ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
 
-        System.out.print("\nWould you like to login?" +
+        System.out.print("\n[Login Page]" +
                 "\n1) login" +
                 "\n2) back" +
                 "\n3) exit" +
-                "\n > ");
+                "\n> ");
 
         int selection = consoleReaderUtil.getIntOption();
 
@@ -51,7 +51,7 @@ public class LoginPage extends Page{
                 AppState.sendExitSignal();
                 return;
             default:
-                System.out.println("Selection not valid!");
+                System.out.println("\nSelection not valid!");
                 return;
         }
 
@@ -70,10 +70,9 @@ public class LoginPage extends Page{
             return;
         };
 
-        System.out.println("Successful login! " + loggedInUser);
+        System.out.println("\nSuccess! " + loggedInUser);
 
-        AppState.sendExitSignal();
-
+        pageNavUtil.mountPage(PageIDList.studentDashboardID);
     }
 
 }

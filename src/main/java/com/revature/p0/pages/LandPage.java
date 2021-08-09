@@ -36,45 +36,25 @@ public class LandPage extends Page{
         System.out.println("2) register");
         System.out.println("3) exit");
 
-        System.out.print(" > ");
+        System.out.print("> ");
 
-        String input = null;
-        try {
-            input = consoleReader.readLine();
-        } catch(IOException e) {
-            e.printStackTrace();
+        int selection = consoleReaderUtil.getIntOption();
+
+
+        switch(selection) {
+            case 1:
+                pageNavUtil.mountPage(PageIDList.loginPageID);
+                break;
+            case 2:
+                pageNavUtil.mountPage(PageIDList.registerPageID);
+                break;
+            case 3:
+                AppState.sendExitSignal();
+                break;
+            default:
+                System.out.println("\nInput not a valid option!\n");
+                return; // Reload page
         }
 
-        if(input == null) {
-            System.out.println("Input not found.");
-            return;
-        } else if(input.equals("")) {
-            System.out.println("Empty input field.");
-            return;
-        }
-
-        int selection;
-
-        try {
-            selection = Integer.parseInt(input);
-            switch(selection) {
-                case 1:
-                    pageNavUtil.mountPage(PageIDList.loginPageID);
-                    break;
-                case 2:
-                    pageNavUtil.mountPage(PageIDList.registerPageID);
-                    break;
-                case 3:
-                    AppState.sendExitSignal();
-                    break;
-                default:
-                    System.out.println("\nInput not a valid option!\n");
-                    return; // Reload page
-            }
-        } catch(NumberFormatException e) {
-            System.out.println("\nInput not recognised!\n");
-            return; // Reload page
-        }
     }
-
 }

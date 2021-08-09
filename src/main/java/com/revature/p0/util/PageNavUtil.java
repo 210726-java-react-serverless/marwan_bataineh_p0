@@ -5,6 +5,7 @@ import com.revature.p0.pages.LandPage;
 import com.revature.p0.pages.LoginPage;
 import com.revature.p0.pages.Page;
 import com.revature.p0.pages.RegisterPage;
+import com.revature.p0.pages.student.StudentDashboard;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public class PageNavUtil {
                 break;
             case PageIDList.registerPageID:
                 nextPage = RegisterPage.getInstance();
+                break;
+            case PageIDList.studentDashboardID:
+                nextPage = StudentDashboard.getInstance();
                 break;
             default:
                 System.out.println("Page not found.");

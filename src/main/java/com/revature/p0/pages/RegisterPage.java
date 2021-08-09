@@ -30,11 +30,11 @@ public class RegisterPage extends Page{
         PageNavUtil pageNavUtil = PageNavUtil.getInstance();
         UserService userService = new UserService();
 
-        System.out.print("\nWould you like to register a new user?" +
+        System.out.print("\n[Register Page]" +
                 "\n1) register" +
                 "\n2) back" +
                 "\n3) exit" +
-                "\n > ");
+                "\n> ");
 
         int selection = consoleReaderUtil.getIntOption();
 
