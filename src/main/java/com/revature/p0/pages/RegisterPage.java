@@ -5,7 +5,7 @@ import com.revature.p0.models.User;
 import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
-import com.revature.p0.util.service.UserService;
+import com.revature.p0.util.services.UserService;
 
 /**
  * The RegisterPage class provides a service to register a new user to the database.

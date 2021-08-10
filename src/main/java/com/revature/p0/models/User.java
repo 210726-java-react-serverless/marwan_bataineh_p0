@@ -2,6 +2,7 @@ package com.revature.p0.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -17,6 +18,7 @@ public class User {
     private String email;
     private String username;
     private String password;
+    private List<CourseHeader> courses;
 
     public User() { super(); }
 
@@ -66,6 +68,14 @@ public class User {
     public String getPassword() { return password; }
 
     public void setPassword(String password) { this.password = password; }
+
+    public List<CourseHeader> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(List<CourseHeader> courses) {
+        this.courses = courses;
+    }
 
     @Override
     public String toString() {

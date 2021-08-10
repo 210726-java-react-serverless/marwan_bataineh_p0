@@ -3,14 +3,18 @@ package com.revature.p0.dao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
+import com.revature.p0.models.Course;
+import com.revature.p0.models.CourseHeader;
 import com.revature.p0.models.User;
 import com.revature.p0.util.MongoClientFactory;
 import com.revature.p0.util.PasswordUtils;
 import com.revature.p0.util.exceptions.DataSourceException;
 import org.bson.Document;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * The MongodUserDAO provides the database connectivity layer for the application. Facilitates CRUD operations on the
@@ -76,6 +80,10 @@ public class MongodUserDAO implements CRUD<User>{
             User authUser = mapper.readValue(authUserDoc.toJson(), User.class);
             authUser.setId(authUserDoc.get("_id").toString());
 
+            Document authUserCoursesDoc = authUserDoc.get("courses", Document.class);
+            List<CourseHeader> courses = new ArrayList<CourseHeader>();
+
+
             return authUser;
 
         } catch (JsonMappingException e) {
@@ -102,6 +110,19 @@ public class MongodUserDAO implements CRUD<User>{
             ObjectMapper mapper = new ObjectMapper();
             User authUser = mapper.readValue(authUserDoc.toJson(), User.class);
             authUser.setId(authUserDoc.get("_id").toString());
+
+            List<Document> coursesList = authUserDoc.getList("courses", Document.class);
+            Iterator<Document> it = coursesList.iterator();
+            List<CourseHeader> courses = new ArrayList<CourseHeader>();
+
+            while(it.hasNext()) {
+                Document doc = it.next();
+                CourseHeader course = mapper.readValue(doc.toJson(), CourseHeader.class);
+                courses.add(course);
+                System.out.println(course);
+            }
+
+            authUser.setCourses(courses);
 
             if(!authUser.getPassword().equals(password)) {
                 return null;

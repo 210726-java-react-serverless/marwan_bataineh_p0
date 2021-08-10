@@ -1,16 +1,12 @@
 package com.revature.p0.pages;
 
-import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.PageIDList;
 import com.revature.p0.models.User;
 import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
 import com.revature.p0.util.UserState;
-import com.revature.p0.util.service.UserService;
-
-import java.io.BufferedReader;
-import java.io.IOException;
+import com.revature.p0.util.services.UserService;
 
 /**
  * The LoginPage class provides a single instance, singleton, user login service.

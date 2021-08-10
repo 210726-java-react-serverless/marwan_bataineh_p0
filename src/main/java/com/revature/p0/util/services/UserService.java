@@ -1,20 +1,25 @@
-package com.revature.p0.util.service;
+package com.revature.p0.util.services;
 
+import com.revature.p0.dao.MongodCourseDAO;
 import com.revature.p0.dao.MongodUserDAO;
+import com.revature.p0.models.Course;
+import com.revature.p0.models.CourseHeader;
 import com.revature.p0.models.User;
-import com.revature.p0.util.MongoClientFactory;
-import com.revature.p0.util.exceptions.AuthenticationException;
-import com.revature.p0.util.exceptions.InvalidRequestException;
-import com.revature.p0.util.exceptions.ResourcePersistenceException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UserService {
 
-    private final MongodUserDAO dao;
+    private final MongodUserDAO userDAO;
+    private final MongodCourseDAO courseDAO;
 
-    public UserService() { this.dao = new MongodUserDAO(); }
+    public UserService() {
+        this.userDAO = new MongodUserDAO();
+        this.courseDAO = new MongodCourseDAO();
+    }
 
     /**
      * The login method passes a username and password (supplied by the user) to the data access object. If the login
@@ -30,7 +35,7 @@ public class UserService {
             return null;
         }
 
-        User authUser = dao.readByUsernamePassword(username, password);
+        User authUser = userDAO.readByUsernamePassword(username, password);
 
         if(authUser == null) {
             //throw new AuthenticationException("Invalid credentials provided!");
@@ -54,18 +59,18 @@ public class UserService {
             System.out.println("\nUsername is invalid!");
             return null;
         }
-        if(dao.readByUsername(newUser.getUsername()) != null) {
+        if(userDAO.readByUsername(newUser.getUsername()) != null) {
             //throw new ResourcePersistenceException("Provided username is already taken!");
             System.out.println("\nUsername taken!");
             return null;
         }
-        if(dao.readByEmail(newUser.getEmail()) != null) {
+        if(userDAO.readByEmail(newUser.getEmail()) != null) {
             //throw new ResourcePersistenceException("Provided email is already taken!");
             System.out.println("\nEmail taken!");
             return null;
         }
 
-        return dao.create(newUser);
+        return userDAO.create(newUser);
 
     }
 
@@ -126,7 +131,7 @@ public class UserService {
     }
 
     public boolean isEmailTaken(String email) {
-        return dao.readByEmail(email) == null;
+        return userDAO.readByEmail(email) == null;
     }
 
     /**
@@ -150,6 +155,30 @@ public class UserService {
      */
     public boolean isPasswordValid(String password) {
         return true;
+    }
+
+    public Course getCourseByIdSection(String courseId, int section) {
+        return courseDAO.readByCourseIdSection(courseId, section);
+    }
+
+    /**
+     * This is a big no-no...
+     * @param courseHeaders - list of course headers (containing id and section vars)
+     * @return - reduced list of courses from full list of courses *gasp*...
+     */
+    public List<Course> getAllCoursesFromList(List<CourseHeader> courseHeaders) {
+        List<Course> fullList = courseDAO.readAll();
+        List<Course> reducedList = new ArrayList<>();
+        fullList.forEach(course -> {
+            if(courseHeaders.contains(new CourseHeader(course.getCourseId(), course.getSection()))) {
+                reducedList.add(course);
+            }
+        });
+        return reducedList;
+    }
+
+    public List<Course> getAllCourses() {
+        return courseDAO.readAll();
     }
 
 }

@@ -5,7 +5,7 @@ import com.revature.p0.pages.Page;
 import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
 import com.revature.p0.util.UserState;
-import com.revature.p0.util.service.UserService;
+import com.revature.p0.util.services.UserService;
 
 public class FacultyDashboard extends Page {
 

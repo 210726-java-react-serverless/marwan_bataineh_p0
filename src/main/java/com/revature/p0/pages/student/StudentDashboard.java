@@ -6,7 +6,7 @@ import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
 import com.revature.p0.util.UserState;
-import com.revature.p0.util.service.UserService;
+import com.revature.p0.util.services.UserService;
 
 public class StudentDashboard extends Page {
 
@@ -43,6 +43,7 @@ public class StudentDashboard extends Page {
                 //break;
             case 2:
                 System.out.println("\nView / Drop");
+                //System.out.println(userService.getAllCoursesFromList(UserState.getInstance().getUser().getCourses()));
                 return;
                 //break;
             case 3:

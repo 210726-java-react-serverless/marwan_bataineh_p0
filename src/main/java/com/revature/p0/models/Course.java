@@ -1,7 +1,10 @@
 package com.revature.p0.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Course {
     private String courseId;
     private String courseName;
@@ -10,6 +13,8 @@ public class Course {
     private int level;
     private int space;
     private int capacity;
+
+    public Course() { super(); }
 
     public Course(String courseID, String courseName, int section, String field, int level, int space, int capacity) {
         this.courseId = courseID;
@@ -23,14 +28,14 @@ public class Course {
 
     @Override
     public String toString() {
-        return "Class{" +
-                "courseId='" + courseId + '\'' +
-                ", courseName='" + courseName + '\'' +
-                ", section=" + section + '\'' +
-                ", field='" + field + '\'' +
-                ", level=" + level +
-                ", space=" + space +
-                ", capacity=" + capacity +
+        return "Course {\n" +
+                "courseId='" + courseId + "',\n" +
+                "courseName='" + courseName + ",'\n" +
+                "section=" + section + ",'\n" +
+                "field='" + field + ",'\n" +
+                "level=" + level + ",\n" +
+                "space=" + space + ",\n" +
+                "capacity=" + capacity + ",\n" +
                 '}';
     }
 
@@ -61,6 +66,14 @@ public class Course {
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public int getSection() {
+        return section;
+    }
+
+    public void setSection(int section) {
+        this.section = section;
     }
 
     public String getField() {
