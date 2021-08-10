@@ -5,6 +5,7 @@ import com.revature.p0.pages.LandPage;
 import com.revature.p0.pages.LoginPage;
 import com.revature.p0.pages.Page;
 import com.revature.p0.pages.RegisterPage;
+import com.revature.p0.pages.faculty.FacultyDashboard;
 import com.revature.p0.pages.student.StudentDashboard;
 
 import java.util.ArrayDeque;
@@ -46,6 +47,8 @@ public class PageNavUtil {
             case PageIDList.studentDashboardID:
                 nextPage = StudentDashboard.getInstance();
                 break;
+            case PageIDList.facultyDashboardID:
+                nextPage = FacultyDashboard.getInstance();
             default:
                 System.out.println("Page not found.");
         }
@@ -60,6 +63,11 @@ public class PageNavUtil {
         mountPage(pageHistoryDeque.pop().getPageID());
     }
 
+    public void portalHome() {
+        mountPage(PageIDList.landPageID);
+        clearHistory();
+    }
+
     /**
      * The pushPageOntoHistoryDeque method updates the page history deque, and adheres to the deque capacity.
      * @param page - page to be pushed onto the deque.
@@ -67,6 +75,10 @@ public class PageNavUtil {
     private void pushPageOntoHistoryDeque(Page page) {
         if(pageHistoryDeque.size() >= historyDequeCapacity) { pageHistoryDeque.pollLast(); }
         pageHistoryDeque.push(page);
+    }
+
+    public void clearHistory() {
+        pageHistoryDeque.clear();
     }
 
 }

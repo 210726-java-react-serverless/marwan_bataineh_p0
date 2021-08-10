@@ -19,6 +19,10 @@ public class UserState {
         activeUser = newUser;
     }
 
+    public void logout() {
+        activeUser = null;
+    }
+
     public static UserState getInstance() {
         if(userState == null) {
            userState = new UserState();

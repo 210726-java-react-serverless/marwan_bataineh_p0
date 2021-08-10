@@ -6,6 +6,7 @@ import com.revature.p0.models.User;
 import com.revature.p0.util.AppState;
 import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
+import com.revature.p0.util.UserState;
 import com.revature.p0.util.service.UserService;
 
 import java.io.BufferedReader;
@@ -34,7 +35,7 @@ public class LoginPage extends Page{
         ConsoleReaderUtil consoleReaderUtil = ConsoleReaderUtil.getInstance();
 
         System.out.print("\n[Login Page]" +
-                "\n1) login" +
+                "\n1) continue" +
                 "\n2) back" +
                 "\n3) exit" +
                 "\n> ");
@@ -70,9 +71,17 @@ public class LoginPage extends Page{
             return;
         };
 
-        System.out.println("\nSuccess! " + loggedInUser);
+        System.out.println("\nSuccess!");
 
-        pageNavUtil.mountPage(PageIDList.studentDashboardID);
+        UserState.getInstance().setUser(loggedInUser);
+
+        if(loggedInUser.getPermissions() == 1) {
+            pageNavUtil.mountPage(PageIDList.facultyDashboardID);
+        } else {
+            pageNavUtil.mountPage(PageIDList.studentDashboardID);
+        }
+
+        pageNavUtil.clearHistory();
+
     }
-
 }

@@ -10,6 +10,7 @@ public class PageIDList {
     public static final String loginPageID = "com.revature.p0.pages.LoginPage";
     public static final String registerPageID = "com.revature.p0.pages.RegisterPage";
     public static final String studentDashboardID = "com.revature.p0.pages.student.StudentDashboard";
+    public static final String facultyDashboardID = "com.revature.p0.pages.faculty.FacultyDashboard";
 
     public static ArrayList<String> pageIDList() {
         ArrayList<String> pageIDList = new ArrayList<String>();
@@ -18,6 +19,7 @@ public class PageIDList {
         pageIDList.add(loginPageID);
         pageIDList.add(registerPageID);
         pageIDList.add(studentDashboardID);
+        pageIDList.add(facultyDashboardID);
 
         return pageIDList;
     }

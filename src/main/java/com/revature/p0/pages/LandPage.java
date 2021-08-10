@@ -6,7 +6,6 @@ import com.revature.p0.util.ConsoleReaderUtil;
 import com.revature.p0.util.PageNavUtil;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 
 /**
  * The LandPage class provides the first, or "landing", page for the program which provides basic options such as "login",

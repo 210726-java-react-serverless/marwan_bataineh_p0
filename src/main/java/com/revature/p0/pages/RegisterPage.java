@@ -30,7 +30,7 @@ public class RegisterPage extends Page{
         UserService userService = new UserService();
 
         System.out.print("\n[Register Page]" +
-                "\n1) register" +
+                "\n1) continue" +
                 "\n2) back" +
                 "\n3) exit" +
                 "\n> ");
