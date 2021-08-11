@@ -202,6 +202,40 @@ public class UserServiceTestSuite {
     }
 
     @Test
+    public void isPasswordValid_returnsTrue_whenGivenValidPassword() {
+
+        String validPassword = "validPassword";
+
+        boolean actualResult = sut.isPasswordValid(validPassword);
+
+        Assert.assertTrue(actualResult);
+
+    }
+
+    @Test
+    public void isPasswordValid_returnsFalse_whenGivenInvalidPassword() {
+
+        String invalidPassword1 = null;
+        String invalidPassword2 = "";
+        String invalidPassword3 = "   ";
+        String invalidPassword4 = "invalid password";
+        String invalidPassword5 = "short";
+
+        boolean actualResult1 = sut.isPasswordValid(invalidPassword1);
+        boolean actualResult2 = sut.isPasswordValid(invalidPassword2);
+        boolean actualResult3 = sut.isPasswordValid(invalidPassword3);
+        boolean actualResult4 = sut.isPasswordValid(invalidPassword4);
+        boolean actualResult5 = sut.isPasswordValid(invalidPassword5);
+
+        Assert.assertFalse(actualResult1);
+        Assert.assertFalse(actualResult2);
+        Assert.assertFalse(actualResult3);
+        Assert.assertFalse(actualResult4);
+        Assert.assertFalse(actualResult5);
+
+    }
+
+    @Test
     public void isUsernameTaken_returnsFalse_whenGivenOriginalUsername() {
 
         String originalUsername = "original";

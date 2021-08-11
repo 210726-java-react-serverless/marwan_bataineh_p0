@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * The UserService class provides business logic implementations and abstraction between DAO layer and user/client layer.
  *
- * //TODO cleanup method geographical features, pull as much validation into this layer from the DAO and client layers.
+ * //TODO cleanup method geographical features, pull as much validation into this layer from the DAO and client layers as possible.
  */
 public class UserService {
 
@@ -240,7 +240,7 @@ public class UserService {
      */
     public boolean isPasswordValid(String password) {
         return password != null && !password.trim().equals("") &&
-                !password.matches("\\s+");
+                !password.matches("[\\s+]") && password.length() >= 6;
     }
 
     /**
