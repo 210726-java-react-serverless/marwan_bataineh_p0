@@ -49,8 +49,10 @@ public class PageNavUtil {
                 break;
             case PageIDList.facultyDashboardID:
                 nextPage = FacultyDashboard.getInstance();
+                break;
             default:
                 System.out.println("Page not found.");
+                return;
         }
         if(prevPage != nextPage && prevPage != null) pushPageOntoHistoryDeque(prevPage);
     }

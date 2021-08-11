@@ -5,9 +5,12 @@ import com.revature.p0.dao.MongodUserDAO;
 import com.revature.p0.models.Course;
 import com.revature.p0.models.CourseHeader;
 import com.revature.p0.models.User;
+import com.revature.p0.util.PageNavUtil;
+import com.revature.p0.util.UserState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +47,11 @@ public class UserService {
 
         return authUser; // TODO we need to store this value within app memory to use elsewhere
 
+    }
+
+    public void logout() {
+        UserState.getInstance().logout();
+        PageNavUtil.getInstance().portalHome();
     }
 
     /**
@@ -157,28 +165,138 @@ public class UserService {
         return true;
     }
 
+    /**
+     * Ensure the field being entered passes requirements.
+     * @param field
+     * @return
+     */
+    public boolean isFieldValid(String field) {
+        if(field == null || field.trim().equals("")) return false; // Is empty
+        if(field.matches("\\s+")) return false; // Contains whitespace
+        if(field.matches("[0-9]")) return false; // Contains number(s)
+        if(field.length() < 2) return false; // Must be at least 2 characters long
+        return field.equalsIgnoreCase("cs") || // Computer Science
+                field.equalsIgnoreCase("biol") || // Biology
+                field.equalsIgnoreCase("phil") || // Philosophy
+                field.equalsIgnoreCase("chem") || // Chemistry
+                field.equalsIgnoreCase("soc") || // Sociology
+                field.equalsIgnoreCase("engl") || // English
+                field.equalsIgnoreCase("math"); // Mathematics
+    }
+
     public Course getCourseByIdSection(String courseId, int section) {
         return courseDAO.readByCourseIdSection(courseId, section);
     }
 
+    public boolean addCourseToStudent(String username, CourseHeader courseHeader) {
+        Course course = getCourseByIdSection(courseHeader.getCourseId(), courseHeader.getSection());
+        if(course == null) {
+            System.out.println("\nCouldn't find course!");
+            return false;
+        }
+
+        if(!updateAddUserCourse(username, course)) {
+            System.out.println("\nFailed to add course!");
+            return false;
+        }
+        System.out.println("\nCourse added!");
+        return true;
+    }
+
+    public Course addCourse(Course newCourse) {
+        Course returnedCourse = courseDAO.create(newCourse);
+        if(returnedCourse == null) {
+            System.out.println("\nFailed to add course!");
+            return null;
+        }
+        System.out.println("\nCourse added!");
+        return returnedCourse;
+    }
+
     /**
-     * This is a big no-no...
+     * [FIXED!] Send a list of CourseHeaders and get a list of Courses back.
      * @param courseHeaders - list of course headers (containing id and section vars)
-     * @return - reduced list of courses from full list of courses *gasp*...
+     * @return - list of courses...
      */
     public List<Course> getAllCoursesFromList(List<CourseHeader> courseHeaders) {
-        List<Course> fullList = courseDAO.readAll();
-        List<Course> reducedList = new ArrayList<>();
-        fullList.forEach(course -> {
-            if(courseHeaders.contains(new CourseHeader(course.getCourseId(), course.getSection()))) {
-                reducedList.add(course);
-            }
-        });
-        return reducedList;
+        if(courseHeaders.size() <= 0 || courseHeaders == null) return new ArrayList<>();
+        return courseDAO.readByCourseHeaders(courseHeaders);
+    }
+
+    public List<Course> getCoursesByField(String field) {
+        return courseDAO.readByField(field);
     }
 
     public List<Course> getAllCourses() {
         return courseDAO.readAll();
+    }
+
+    /**
+     * Add a course (courseId and section) to the user's "courses" array in the db and update space in that course.
+     * @param username
+     * @param course
+     * @return - success/fail.
+     */
+    public boolean updateAddUserCourse(String username, Course course) { //TODO cleanup that nonsense
+        if(course.getSpace() <= 0) {
+            System.out.println("\nThat course is full!");
+            return false;
+        }
+
+        List<CourseHeader> userCourseHeaders = UserState.getInstance().getUser().getCourses();
+        for(int i = 0; i < userCourseHeaders.size(); i++) {
+            if (userCourseHeaders.get(i).getCourseId().equals(course.getCourseId())) {
+                System.out.println("\nYou're already registered for that course!");
+                return false;
+            }
+        }
+
+        if(!userDAO.updateAddUserCourseList(username, course)) {
+            System.out.println("\nThere was an issue adding course.");
+            return false;
+        }
+        User outdatedUser = UserState.getInstance().getUser();
+        User updatedUser = login(outdatedUser.getUsername(), outdatedUser.getPassword());
+        UserState.getInstance().setUser(updatedUser);
+        courseDAO.updateCourseSpace(new CourseHeader(course.getCourseId(), course.getSection()), -1);
+        return true;
+    }
+
+    public boolean updateDeleteUserCourse(String username, Course course) {
+        if(!userDAO.updateDeleteUserCourseList(username, course)) {
+            System.out.println("\nThere was an issue dropping course.");
+            return false;
+        }
+        User outdatedUser = UserState.getInstance().getUser();
+        User updatedUser = login(outdatedUser.getUsername(), outdatedUser.getPassword());
+        UserState.getInstance().setUser(updatedUser);
+        courseDAO.updateCourseSpace(new CourseHeader(course.getCourseId(), course.getSection()), 1);
+        return true;
+    }
+
+    public boolean updateCourse(Course course) {
+        if(course == null) {
+            System.out.println("\nCourse is null.");
+            return false;
+        }
+        if(!courseDAO.updateCourse(course)) {
+            System.out.println("\nFailed to update course.");
+            return false;
+        }
+        System.out.println("\nCourse updated!");
+        return true;
+    }
+
+    public boolean removeCourse(CourseHeader courseHeader) {
+        if(!courseDAO.deleteCourseByCourseHeader(courseHeader)) {
+            System.out.println("\nFailed to remove course.");
+            return false;
+        }
+        if(!userDAO.deleteAllUserCoursesByCourseHeader(courseHeader)) {
+            System.out.println("\nFailed to remove courses from users. Possible corruption...");
+            return false;
+        }
+        return true;
     }
 
 }

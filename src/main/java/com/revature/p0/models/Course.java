@@ -29,14 +29,10 @@ public class Course {
     @Override
     public String toString() {
         return "Course {\n" +
-                "courseId='" + courseId + "',\n" +
-                "courseName='" + courseName + ",'\n" +
-                "section=" + section + ",'\n" +
-                "field='" + field + ",'\n" +
-                "level=" + level + ",\n" +
-                "space=" + space + ",\n" +
-                "capacity=" + capacity + ",\n" +
-                '}';
+                "\tcourseId='" + courseId + "', courseName='" + courseName + "',\n" +
+                "\tsection=" + section + "', field='" + field + "', level=" + level + ",\n" +
+                "\tspace=" + space + ", capacity=" + capacity + "\n" +
+                "}";
     }
 
     @Override

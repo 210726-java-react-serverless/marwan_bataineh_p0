@@ -2,6 +2,7 @@ package com.revature.p0.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,6 +75,7 @@ public class User {
     }
 
     public void setCourses(List<CourseHeader> courses) {
+        if(courses == null) courses = new ArrayList<>();
         this.courses = courses;
     }
 

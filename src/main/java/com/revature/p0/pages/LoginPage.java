@@ -57,9 +57,6 @@ public class LoginPage extends Page{
         System.out.print("Enter password: ");
         String password = consoleReaderUtil.getLine();
 
-        System.out.println("Username: " + username +
-                "\nPassword: " + password);
-
         User loggedInUser = userService.login(username, password);
 
         if(loggedInUser == null) {

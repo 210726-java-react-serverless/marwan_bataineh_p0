@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import com.revature.p0.models.Course;
 import com.revature.p0.models.CourseHeader;
 import com.revature.p0.models.User;
@@ -11,6 +13,7 @@ import com.revature.p0.util.MongoClientFactory;
 import com.revature.p0.util.PasswordUtils;
 import com.revature.p0.util.exceptions.DataSourceException;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,6 +48,7 @@ public class MongodUserDAO implements CRUD<User>{
 
 
             usersCollection.insertOne(newUserDoc);
+            Bson bson = newUserDoc.toBsonDocument();
             newUser.setId(newUserDoc.get("_id").toString());
 
             return newUser;
@@ -112,17 +116,17 @@ public class MongodUserDAO implements CRUD<User>{
             authUser.setId(authUserDoc.get("_id").toString());
 
             List<Document> coursesList = authUserDoc.getList("courses", Document.class);
-            Iterator<Document> it = coursesList.iterator();
-            List<CourseHeader> courses = new ArrayList<CourseHeader>();
+            if(coursesList != null) {
+                Iterator<Document> it = coursesList.iterator();
+                List<CourseHeader> courses = new ArrayList<CourseHeader>();
 
-            while(it.hasNext()) {
-                Document doc = it.next();
-                CourseHeader course = mapper.readValue(doc.toJson(), CourseHeader.class);
-                courses.add(course);
-                System.out.println(course);
-            }
-
-            authUser.setCourses(courses);
+                while (it.hasNext()) {
+                    Document doc = it.next();
+                    CourseHeader course = mapper.readValue(doc.toJson(), CourseHeader.class);
+                    courses.add(course);
+                }
+                authUser.setCourses(courses);
+            } else authUser.setCourses(null); //TODO wtf is this lol Handle no course list better
 
             if(!authUser.getPassword().equals(password)) {
                 return null;
@@ -170,9 +174,66 @@ public class MongodUserDAO implements CRUD<User>{
         return false;
     }
 
+    public boolean updateAddUserCourseList(String username, Course course) {
+        try {
+            MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
+            MongoDatabase p0Database = mongoClient.getDatabase("p0");
+            MongoCollection<Document> usersCollection = p0Database.getCollection("users");
+
+            usersCollection.findOneAndUpdate(Filters.eq("username", username),
+                    new Document().append(
+                            "$push",
+                            new Document("courses", new Document("courseId", course.getCourseId())
+                                    .append("section", course.getSection()))
+                    ));
+            return true;
+        } catch(Exception e) { //TODO specify exceptions, tailor logging/handling
+            System.out.println("\nThere was a problem updating your course list.");
+            return false;
+        }
+    }
+
+    public boolean updateDeleteUserCourseList(String username, Course course) {
+        try {
+            MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
+            MongoDatabase p0Database = mongoClient.getDatabase("p0");
+            MongoCollection<Document> usersCollection = p0Database.getCollection("users");
+
+            usersCollection.findOneAndUpdate(Filters.eq("username", username),
+                    new Document().append(
+                            "$pull",
+                            new Document("courses", new Document("courseId", course.getCourseId())
+                                    .append("section", course.getSection()))
+                    ));
+            return true;
+        } catch(Exception e) { //TODO specify exceptions, tailor logging/handling
+            System.out.println("\nThere was a problem removing your course.");
+            return false;
+        }
+    }
+
     @Override
     public boolean delete(int id) {
         return false;
+    }
+
+    public boolean deleteAllUserCoursesByCourseHeader(CourseHeader courseHeader) {
+        try {
+            MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
+            MongoDatabase p0Database = mongoClient.getDatabase("p0");
+            MongoCollection<Document> usersCollection = p0Database.getCollection("users");
+
+            Document queryDoc = new Document("courses", new Document("courseId", courseHeader.getCourseId())
+                    .append("section", courseHeader.getSection()));
+            usersCollection.updateMany(queryDoc,
+                    new Document().append(
+                            "$pull",
+                            queryDoc
+                    ));
+            return true;
+        } catch(Exception e) {
+            return false; //TODO log
+        }
     }
 
 }
