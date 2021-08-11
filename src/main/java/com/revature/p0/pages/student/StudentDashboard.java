@@ -257,7 +257,7 @@ public class StudentDashboard extends Page {
                     return;
                 }
                 //TODO userService drop course courseList.get(dropCourse)
-                userService.updateDeleteUserCourse(UserState.getInstance().getUser().getUsername(), courseList.get(selection));
+                userService.updateDeleteUserCourse(UserState.getInstance().getUser().getUsername(), courseList.get(dropCourse));
             case 2:
                 return;
             case 3:

@@ -5,13 +5,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.revature.p0.models.Course;
 import com.revature.p0.models.CourseHeader;
 import com.revature.p0.models.User;
 import com.revature.p0.util.MongoClientFactory;
-import com.revature.p0.util.PasswordUtils;
-import com.revature.p0.util.exceptions.DataSourceException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -21,41 +20,45 @@ import java.util.List;
 
 /**
  * The MongodUserDAO provides the database connectivity layer for the application. Facilitates CRUD operations on the
- * users collection.
+ * users collection. //TODO need to bring over Course DAO and abstract mongo connectivity out of individual methods.
  */
 public class MongodUserDAO implements CRUD<User>{
 
+    private final Logger logger = LogManager.getLogger(MongodUserDAO.class);
+
+    /**
+     * Inserts a new entry into the users collection in p0.
+     * @param newUser
+     * @return - User is insertion is successful; null if otherwise.
+     */
     @Override
     public User create(User newUser) {
         try {
-            /* Encrypt newUser's plaintext password */
-            String salt = PasswordUtils.getSalt(30);
-            String encryptedPassword = PasswordUtils.generateSecurePassword(newUser.getPassword(), salt);
-
-            MongoClient mongoClient = MongoClientFactory.getInstance()
-                    .getConnection();
-
-
+            MongoClient mongoClient = MongoClientFactory.getInstance().getConnection();
             MongoDatabase bookstoreDb = mongoClient.getDatabase("p0");
             MongoCollection<Document> usersCollection = bookstoreDb.getCollection("users");
+
             Document newUserDoc = new Document("permissions", newUser.getPermissions())
                     .append("firstName", newUser.getFirstName())
                     .append("lastName", newUser.getLastName())
                     .append("email", newUser.getEmail())
                     .append("username", newUser.getUsername())
-                    .append("password", newUser.getPassword()); // TODO: enter encrypted password
-
-
+                    .append("password", newUser.getPassword());
 
             usersCollection.insertOne(newUserDoc);
             Bson bson = newUserDoc.toBsonDocument();
             newUser.setId(newUserDoc.get("_id").toString());
 
+            logger.info("User: " + newUser.getUsername() + "successfully registered!");
+
             return newUser;
 
         } catch (Exception e) {
-            e.printStackTrace(); // TODO log this to a file
-            throw new DataSourceException("An unexpected exception occurred.", e);
+            //e.printStackTrace();
+            //throw new DataSourceException("An unexpected exception occurred.", e);
+            logger.error(e.getMessage());
+            logger.debug("User not registered!");
+            return null;
         }
     }
 
@@ -77,6 +80,7 @@ public class MongodUserDAO implements CRUD<User>{
             Document authUserDoc = usersCollection.find(queryDoc).first();
 
             if (authUserDoc == null) {
+                logger.info("Username: " + username + " does not already exist.");
                 return null;
             }
 
@@ -84,18 +88,19 @@ public class MongodUserDAO implements CRUD<User>{
             User authUser = mapper.readValue(authUserDoc.toJson(), User.class);
             authUser.setId(authUserDoc.get("_id").toString());
 
-            Document authUserCoursesDoc = authUserDoc.get("courses", Document.class);
-            List<CourseHeader> courses = new ArrayList<CourseHeader>();
-
-
+            logger.info("Username: " + username + " already exists.");
             return authUser;
 
         } catch (JsonMappingException e) {
-            e.printStackTrace(); // TODO log this to a file
-            throw new DataSourceException("An exception occurred while mapping the document.", e);
+//            e.printStackTrace();
+//            throw new DataSourceException("An exception occurred while mapping the document.", e);
+            logger.error(e.getMessage());
+            return null;
         } catch (Exception e) {
-            e.printStackTrace(); // TODO log this to a file
-            throw new DataSourceException("An unexpected exception occurred.", e);
+//            e.printStackTrace();
+//            throw new DataSourceException("An unexpected exception occurred.", e);
+            logger.error(e.getMessage());
+            return null;
         }
     }
 
@@ -108,6 +113,7 @@ public class MongodUserDAO implements CRUD<User>{
             Document authUserDoc = usersCollection.find(queryDoc).first();
 
             if (authUserDoc == null) {
+                logger.info("User: " + username + " not found.");
                 return null;
             }
 
@@ -115,6 +121,7 @@ public class MongodUserDAO implements CRUD<User>{
             User authUser = mapper.readValue(authUserDoc.toJson(), User.class);
             authUser.setId(authUserDoc.get("_id").toString());
 
+            // Create courses list (CourseHeaders) from doc and insert into user
             List<Document> coursesList = authUserDoc.getList("courses", Document.class);
             if(coursesList != null) {
                 Iterator<Document> it = coursesList.iterator();
@@ -126,20 +133,28 @@ public class MongodUserDAO implements CRUD<User>{
                     courses.add(course);
                 }
                 authUser.setCourses(courses);
-            } else authUser.setCourses(null); //TODO wtf is this lol Handle no course list better
+            } else authUser.setCourses(null);
 
             if(!authUser.getPassword().equals(password)) {
+                logger.info("User: " + username + " not authorized.");
                 return null;
             }
 
+            logger.info("User: " + authUser.getUsername() + " authorized.");
             return authUser;
 
         } catch (JsonMappingException e) {
-            e.printStackTrace(); // TODO log this to a file
-            throw new DataSourceException("An exception occurred while mapping the document.", e);
+//            e.printStackTrace();
+//            throw new DataSourceException("An exception occurred while mapping the document.", e);
+            logger.error(e.getMessage());
+            logger.debug("Failed to authenticate user.");
+            return null;
         } catch (Exception e) {
-            e.printStackTrace(); // TODO log this to a file
-            throw new DataSourceException("An unexpected exception occurred.", e);
+//            e.printStackTrace();
+//            throw new DataSourceException("An unexpected exception occurred.", e);
+            logger.error(e.getMessage());
+            logger.debug("Failed to authenticate user.");
+            return null;
         }
     }
 
@@ -152,6 +167,7 @@ public class MongodUserDAO implements CRUD<User>{
             Document authUserDoc = usersCollection.find(queryDoc).first();
 
             if (authUserDoc == null) {
+                logger.info("Email: " + email + " does not already exist.");
                 return null;
             }
 
@@ -159,14 +175,17 @@ public class MongodUserDAO implements CRUD<User>{
             User authUser = mapper.readValue(authUserDoc.toJson(), User.class);
             authUser.setId(authUserDoc.get("_id").toString());
 
+            logger.info("Email: " + email + " already exists.");
             return authUser;
         } catch(JsonProcessingException e) {
-            e.printStackTrace(); //TODO: log and provide handling
+//            e.printStackTrace();
+            logger.error(e.getMessage());
+            return null;
         } catch(Exception e) {
-            e.printStackTrace(); //TODO: log and handle
+//            e.printStackTrace();
+            logger.error(e.getMessage());
+            return null;
         }
-
-        return null;
     }
 
     @Override
@@ -186,9 +205,12 @@ public class MongodUserDAO implements CRUD<User>{
                             new Document("courses", new Document("courseId", course.getCourseId())
                                     .append("section", course.getSection()))
                     ));
+            logger.info("Course: " + course.getCourseId() + ", Section: " + course.getSection() + " added to user " + username);
             return true;
-        } catch(Exception e) { //TODO specify exceptions, tailor logging/handling
-            System.out.println("\nThere was a problem updating your course list.");
+        } catch(Exception e) {
+//            System.out.println("\nThere was a problem updating your course list.");
+            logger.error(e.getMessage());
+            logger.debug("Failed to add course to user.");
             return false;
         }
     }
@@ -205,9 +227,13 @@ public class MongodUserDAO implements CRUD<User>{
                             new Document("courses", new Document("courseId", course.getCourseId())
                                     .append("section", course.getSection()))
                     ));
+
+            logger.info("Course: " + course.getCourseId() + ", Section: " + course.getSection() + " removed from user " + username);
             return true;
-        } catch(Exception e) { //TODO specify exceptions, tailor logging/handling
-            System.out.println("\nThere was a problem removing your course.");
+        } catch(Exception e) {
+//            System.out.println("\nThere was a problem removing your course.");
+            logger.error(e.getMessage());
+            logger.debug("Failed to remove course from user.");
             return false;
         }
     }
@@ -230,9 +256,14 @@ public class MongodUserDAO implements CRUD<User>{
                             "$pull",
                             queryDoc
                     ));
+
+            logger.info("Course: " + courseHeader.getCourseId() + ", Section: " + courseHeader.getSection() + " successfully removed from users' lists");
             return true;
         } catch(Exception e) {
-            return false; //TODO log
+            logger.error(e.getMessage());
+            logger.debug("Course: " + courseHeader.getCourseId() + ", Section: " + courseHeader.getSection() + " failed to be fully removed " +
+                    "from users' lists. Possible corruption/incomplete operation");
+            return false;
         }
     }
 

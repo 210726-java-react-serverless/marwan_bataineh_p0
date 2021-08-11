@@ -108,12 +108,18 @@ public class RegisterPage extends Page{
         if(!userService.isEmailValid(email)) {
             System.out.println("\nThat is not a valid email.");
             return;
+        } else if(userService.isEmailTaken(email)) {
+            System.out.println("\nEmail is taken!");
+            return;
         }
 
         System.out.print("Username: ");
         username = consoleReaderUtil.getLine();
         if(!userService.isUsernameValid(username)) {
             System.out.println("\nThat is not a valid username.");
+            return;
+        } else if(userService.isUsernameTaken(username)) {
+            System.out.println("\nThat username is already taken!");
             return;
         }
 

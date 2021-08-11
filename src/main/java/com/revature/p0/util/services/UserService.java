@@ -6,22 +6,37 @@ import com.revature.p0.models.Course;
 import com.revature.p0.models.CourseHeader;
 import com.revature.p0.models.User;
 import com.revature.p0.util.PageNavUtil;
+import com.revature.p0.util.PasswordUtils;
 import com.revature.p0.util.UserState;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The UserService class provides business logic implementations and abstraction between DAO layer and user/client layer.
+ *
+ * //TODO cleanup method geographical features, pull as much validation into this layer from the DAO and client layers.
+ */
 public class UserService {
 
     private final MongodUserDAO userDAO;
     private final MongodCourseDAO courseDAO;
+    private final Logger logger = LogManager.getLogger(UserService.class);
 
     public UserService() {
         this.userDAO = new MongodUserDAO();
         this.courseDAO = new MongodCourseDAO();
+    }
+
+    public UserService(MongodUserDAO userDAO, MongodCourseDAO courseDAO) {
+        this.userDAO = userDAO;
+        this.courseDAO = courseDAO;
     }
 
     /**
@@ -33,12 +48,23 @@ public class UserService {
      */
     public User login(String username, String password) {
 
+        Properties appProperties = new Properties();
+
         if(username == null || username.trim().equals("") || password == null || password.trim().equals("")) {
             //throw new InvalidRequestException("Invalid user credentials provided!");
             return null;
         }
 
-        User authUser = userDAO.readByUsernamePassword(username, password);
+        try {
+            appProperties.load(new FileReader("src/main/resources/application.properties"));
+        } catch(Exception e) {
+            logger.error(e.getMessage());
+            return null;
+        }
+
+        String securePassword = PasswordUtils.generateSecurePassword(password, appProperties.getProperty("salt"));
+
+        User authUser = userDAO.readByUsernamePassword(username, securePassword);
 
         if(authUser == null) {
             //throw new AuthenticationException("Invalid credentials provided!");
@@ -49,6 +75,9 @@ public class UserService {
 
     }
 
+    /**
+     * Clears the UserState and sets destination page to "Landing Page" (or Home).+
+     */
     public void logout() {
         UserState.getInstance().logout();
         PageNavUtil.getInstance().portalHome();
@@ -62,31 +91,69 @@ public class UserService {
      */
     public User register(User newUser) {
 
-        if(!isUserValid(newUser)) {
+        Properties appProperties = new Properties();
+
+        User returnUser = new User();
+
+        if(!isNameValid(newUser.getFirstName())) {
             //throw new InvalidRequestException("Invalid user data provided!");
+            System.out.println("\nFirst name is invalid!");
+            returnUser = null;
+        }
+        if(!isNameValid(newUser.getLastName())) {
+            System.out.println("\nLast name is invalid!");
+            returnUser = null;
+        }
+        if(!isEmailValid(newUser.getEmail())) {
+            System.out.println("\nEmail is invalid!");
+            returnUser = null;
+        }
+        if(!isUsernameValid(newUser.getUsername())) {
             System.out.println("\nUsername is invalid!");
-            return null;
+            returnUser = null;
+        }
+        if(!isPasswordValid(newUser.getPassword())) {
+            System.out.println("\nPassword is invalid!");
+            returnUser = null;
         }
         if(userDAO.readByUsername(newUser.getUsername()) != null) {
             //throw new ResourcePersistenceException("Provided username is already taken!");
             System.out.println("\nUsername taken!");
-            return null;
+            returnUser = null;
         }
         if(userDAO.readByEmail(newUser.getEmail()) != null) {
             //throw new ResourcePersistenceException("Provided email is already taken!");
             System.out.println("\nEmail taken!");
+            returnUser = null;
+        }
+
+        try {
+            appProperties.load(new FileReader("src/main/resources/application.properties"));
+        } catch(Exception e) {
+            logger.error(e.getMessage());
             return null;
         }
 
-        return userDAO.create(newUser);
+        if(returnUser != null) {
+            String securePassword = PasswordUtils.generateSecurePassword(newUser.getPassword(), appProperties.getProperty("salt"));
+            newUser.setPassword(securePassword);
+            return userDAO.create(newUser);
+        } else {
+            return null;
+        }
 
     }
 
+    /**
+     * Leverages various input validation methods into one method for checking if a User is valid in all its entries.
+     * @param user - check this User.
+     * @return - true if the User passes all validation; false if it fails any.
+     */
     public boolean isUserValid(User user) {
-        if (user == null) return false;
-        if (user.getFirstName() == null || user.getFirstName().trim().equals("")) return false;
-        if (user.getLastName() == null || user.getLastName().trim().equals("")) return false;
-        if (user.getEmail() == null || user.getEmail().trim().equals("")) return false;
+        if (!isNameValid(user.getFirstName()) || !isNameValid(user.getLastName())) return false;
+        if (!isEmailValid(user.getEmail())) return false;
+        if (!isUsernameValid(user.getUsername())) return false;
+        if (!isPasswordValid(user.getPassword())) return false;
         if (user.getUsername() == null || user.getUsername().trim().equals("")) return false;
         return user.getPassword() != null && !user.getPassword().trim().equals("");
     }
@@ -99,6 +166,15 @@ public class UserService {
     public boolean isNameValid(String name) {
         return name != null && !name.trim().equals("")
                 && !name.matches(".*\\d.*");
+    }
+
+    /**
+     * Calls the DAO to search for given username and respond with whether it exists already.
+     * @param username - check this username.
+     * @return - true if the username exists in the db; false if otherwise.
+     */
+    public boolean isUsernameTaken(String username) {
+        return userDAO.readByUsername(username) != null;
     }
 
     /**
@@ -139,15 +215,16 @@ public class UserService {
     }
 
     public boolean isEmailTaken(String email) {
-        return userDAO.readByEmail(email) == null;
+        return userDAO.readByEmail(email) != null;
     }
 
     /**
      * Ensure username has no spaces nor special characters (aside from underscores).
-     * @param username
-     * @return
+     * @param username - check this username.
+     * @return - true if username passed validation; false if otherwise.
      */
     public boolean isUsernameValid(String username) {
+        if(username == null || username.trim().equals("")) return false;
         Pattern illegalCharacters = Pattern.compile("[^a-zA-Z0-9_]");
         Matcher matcher = illegalCharacters.matcher(username);
         return !username.trim().equals("") &&
@@ -158,17 +235,18 @@ public class UserService {
     }
 
     /**
-     * Under construction.
-     * @return
+     * Check if password is valid or not.
+     * @return - true if valid; false if otherwise.
      */
     public boolean isPasswordValid(String password) {
-        return true;
+        return password != null && !password.trim().equals("") &&
+                !password.matches("\\s+");
     }
 
     /**
      * Ensure the field being entered passes requirements.
-     * @param field
-     * @return
+     * @param field - check this field.
+     * @return - true if field is valid; false if otherwise.
      */
     public boolean isFieldValid(String field) {
         if(field == null || field.trim().equals("")) return false; // Is empty
@@ -184,10 +262,22 @@ public class UserService {
                 field.equalsIgnoreCase("math"); // Mathematics
     }
 
+    /**
+     * Pass Course search to DAO.
+     * @param courseId - courseId record.
+     * @param section - section record.
+     * @return - copy of Course if it exists; null if otherwise.
+     */
     public Course getCourseByIdSection(String courseId, int section) {
         return courseDAO.readByCourseIdSection(courseId, section);
     }
 
+    /**
+     * Pass information to DAO necessary for updated a User's Course list.
+     * @param username - User to update.
+     * @param courseHeader - Course to add.
+     * @return - true if DAO returns a copy; false if it returns null.
+     */
     public boolean addCourseToStudent(String username, CourseHeader courseHeader) {
         Course course = getCourseByIdSection(courseHeader.getCourseId(), courseHeader.getSection());
         if(course == null) {
@@ -203,6 +293,11 @@ public class UserService {
         return true;
     }
 
+    /**
+     * Pass DAO new Course to be added.
+     * @param newCourse - new Course.
+     * @return - copy of new Course if operation was successful; null if otherwise.
+     */
     public Course addCourse(Course newCourse) {
         Course returnedCourse = courseDAO.create(newCourse);
         if(returnedCourse == null) {
@@ -223,10 +318,19 @@ public class UserService {
         return courseDAO.readByCourseHeaders(courseHeaders);
     }
 
+    /**
+     * Pass DAO field record to query for a list of Courses matching that field.
+     * @param field - field filter.
+     * @return - list of Courses.
+     */
     public List<Course> getCoursesByField(String field) {
         return courseDAO.readByField(field);
     }
 
+    /**
+     * Request ALL Courses from db from DAO.
+     * @return - list of all Courses.
+     */
     public List<Course> getAllCourses() {
         return courseDAO.readAll();
     }
@@ -255,25 +359,33 @@ public class UserService {
             System.out.println("\nThere was an issue adding course.");
             return false;
         }
-        User outdatedUser = UserState.getInstance().getUser();
-        User updatedUser = login(outdatedUser.getUsername(), outdatedUser.getPassword());
-        UserState.getInstance().setUser(updatedUser);
+
+        UserState.getInstance().getUser().getCourses().add(new CourseHeader(course.getCourseId(), course.getSection()));
         courseDAO.updateCourseSpace(new CourseHeader(course.getCourseId(), course.getSection()), -1);
         return true;
     }
 
+    /**
+     * Removes a Course from a User's Course list.
+     * @param username - User.
+     * @param course - Course to remove.
+     * @return - true if operation succeeded; false if otherwise.
+     */
     public boolean updateDeleteUserCourse(String username, Course course) {
         if(!userDAO.updateDeleteUserCourseList(username, course)) {
             System.out.println("\nThere was an issue dropping course.");
             return false;
         }
-        User outdatedUser = UserState.getInstance().getUser();
-        User updatedUser = login(outdatedUser.getUsername(), outdatedUser.getPassword());
-        UserState.getInstance().setUser(updatedUser);
+        UserState.getInstance().getUser().getCourses().remove(new CourseHeader(course.getCourseId(), course.getSection()));
         courseDAO.updateCourseSpace(new CourseHeader(course.getCourseId(), course.getSection()), 1);
         return true;
     }
 
+    /**
+     * Update the records of a single Course (request op from DAO).
+     * @param course - Course.
+     * @return - true if operation was successful; false if otherwise.
+     */
     public boolean updateCourse(Course course) {
         if(course == null) {
             System.out.println("\nCourse is null.");
@@ -287,6 +399,11 @@ public class UserService {
         return true;
     }
 
+    /**
+     * Removes a Course from the db and updates any Users who had that Course in their list (request ops from DAO).
+     * @param courseHeader - Course Identification for Course to be deleted.
+     * @return - true if operation was successful; false if otherwise.
+     */
     public boolean removeCourse(CourseHeader courseHeader) {
         if(!courseDAO.deleteCourseByCourseHeader(courseHeader)) {
             System.out.println("\nFailed to remove course.");
